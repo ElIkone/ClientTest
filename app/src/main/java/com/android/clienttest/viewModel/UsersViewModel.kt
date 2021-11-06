@@ -17,16 +17,20 @@ class UsersViewModel constructor(private val mainRepository: NetworkRepository) 
 
     fun getAllUsers() {
         job = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
-            val response = mainRepository.getAllUsers()
-
-
-            withContext(Dispatchers.Main) {
-                if (response.results.isNotEmpty()) {
-                    usersList.postValue(response)
-                    loading.value = false
-                } else {
-                    onError("Error")
+            try  {
+                val response = mainRepository.getAllUsers()
+                withContext(Dispatchers.Main) {
+                    if (response.results.isNotEmpty()) {
+                        usersList.postValue(response)
+                        loading.value = false
+                    } else {
+                        onError("Error")
+                    }
                 }
+            } catch (ce: CancellationException) {
+            throw ce
+        } catch (e: Exception) {
+            println("Error")
             }
         }
     }
