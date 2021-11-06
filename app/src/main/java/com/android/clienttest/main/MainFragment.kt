@@ -9,10 +9,15 @@ import androidx.databinding.DataBindingUtil
 import com.android.clienttest.R
 import com.android.clienttest.databinding.FragmentMainBinding
 import com.android.clienttest.model.RandomUser
+import com.android.clienttest.network.NetworkRepository
+import com.android.clienttest.network.RetrofitService
 
 class MainFragment : Fragment(), UserAdapter.UserItemListener {
     private lateinit var binding: FragmentMainBinding
     private val adapter = UserAdapter(this)
+    private val retrofitService = RetrofitService.getInstance()
+    private val mainRepository = NetworkRepository(retrofitService)
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
