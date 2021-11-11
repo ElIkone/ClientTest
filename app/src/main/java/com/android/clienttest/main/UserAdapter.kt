@@ -1,7 +1,6 @@
 package com.android.clienttest.main
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.android.clienttest.databinding.ItemViewBinding
@@ -9,7 +8,7 @@ import com.android.clienttest.model.RandomUser
 import com.android.clienttest.model.RandomUserList
 import com.bumptech.glide.Glide
 
-class UserAdapter(private val listener: UserItemListener) : RecyclerView.Adapter<MainViewHolder>() {
+class UserAdapter(private val clickListener: UserListener) : RecyclerView.Adapter<MainViewHolder>() {
     var usersList = mutableListOf<RandomUser>()
 
     fun setUserList(userList: RandomUserList) {
@@ -17,39 +16,37 @@ class UserAdapter(private val listener: UserItemListener) : RecyclerView.Adapter
         notifyDataSetChanged()
     }
 
-    interface UserItemListener {
-        fun onClickedUser(userObject: RandomUser)
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemViewBinding.inflate(inflater, parent, false)
-        return MainViewHolder(binding, listener)
+        return MainViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
         val randomUser = usersList[position]
-        holder.binding.name.text= randomUser.nat
-        holder.binding.gender.text = randomUser.name.first
-        Glide.with(holder.itemView.context).load(randomUser.picture.large).into(holder.binding.imageCharacter)
-        holder.bindItems(usersList[position])
+
+        holder.bind(randomUser, clickListener)
+
     }
 
     override fun getItemCount() = usersList.size
+
+
 }
 
-class MainViewHolder(val binding: ItemViewBinding, private val listener: UserAdapter.UserItemListener) : RecyclerView.ViewHolder(binding.root),
-    View.OnClickListener {
-    private lateinit var randomUser: RandomUser
-    init {
-        binding.root.setOnClickListener(this)
+class MainViewHolder(val binding: ItemViewBinding) : RecyclerView.ViewHolder(binding.root) {
+    fun bind (item: RandomUser, clickListener: UserListener) {
+        binding.randomUser = item
+        binding.name.text= item.nat
+        binding.gender.text = item.name.first
+        Glide.with(binding.imageCharacter.context).load(item.picture.large).into(binding.imageCharacter)
+        binding.clickListener = clickListener
+        binding.executePendingBindings()
     }
+}
 
-    fun bindItems(item: RandomUser) {
-        this.randomUser = item
-    }
-    override fun onClick(v: View?) {
-        println(randomUser)
-        listener.onClickedUser(randomUser)
-    }
+
+class UserListener(val clickListener: (randomUserId: String) -> Unit) {
+    fun onClick(randomUser: RandomUser) = clickListener(randomUser.email)
 }

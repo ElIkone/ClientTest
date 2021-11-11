@@ -21,10 +21,17 @@ import com.android.clienttest.utils.SimpleDividerItemDecoration
 import com.android.clienttest.viewModel.UsersViewModel
 import com.android.clienttest.viewModel.UsersViewModelFactory
 
-class MainFragment : Fragment(), UserAdapter.UserItemListener {
+
+
+class MainFragment : Fragment() {
     lateinit var viewModel: UsersViewModel
     private lateinit var binding: FragmentMainBinding
-    private val adapter = UserAdapter(this)
+        private val adapter = UserAdapter(UserListener {
+                sleepId -> viewModel.onSleepNightClicked(sleepId)
+        })
+
+
+
     private val retrofitService = RetrofitService.getInstance()
     private val mainRepository = NetworkRepository(retrofitService)
 
@@ -55,19 +62,17 @@ class MainFragment : Fragment(), UserAdapter.UserItemListener {
             if (it) {
             }
         })
+
+        viewModel.navigateToRandomUser.observe(viewLifecycleOwner, Observer {
+                randomUser ->
+            randomUser?.let {
+                findNavController().navigate(R.id.action_mainFragment_to_detailFragment)
+                viewModel.onSleepDataQualityNavigated()
+            }
+        })
+
+
         viewModel.getAllUsers()
-    }
 
-
-    override fun onClickedUser(userObject: RandomUser) {
-        var bundle = bundleOf(
-            "profilePicture" to userObject.picture.large,
-            "gender" to userObject.gender,
-            "name" to userObject.name.first,
-            "phone" to userObject.phone,
-            "email" to userObject.email,
-            "nat" to userObject.nat
-        )
-        findNavController().navigate(R.id.action_mainFragment_to_detailFragment, bundle)
     }
 }

@@ -8,6 +8,11 @@ import kotlinx.coroutines.*
 
 class UsersViewModel constructor(private val mainRepository: NetworkRepository) : ViewModel() {
     val errorMessage = MutableLiveData<String>()
+
+    private val _navigateRandomUser = MutableLiveData<Long>()
+    val navigateToRandomUser
+        get() = _navigateRandomUser
+
     val usersList = MutableLiveData<RandomUserList>()
     var job: Job? = null
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -38,6 +43,14 @@ class UsersViewModel constructor(private val mainRepository: NetworkRepository) 
     private fun onError(message: String) {
         errorMessage.value = message
         loading.value = false
+    }
+
+    fun onSleepNightClicked(id: String) {
+        _navigateRandomUser.value = id.toLongOrNull() ?: 0
+    }
+
+    fun onSleepDataQualityNavigated() {
+        _navigateRandomUser.value = null
     }
 
     override fun onCleared() {
